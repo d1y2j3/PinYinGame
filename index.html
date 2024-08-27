@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>拼音学习游戏</title>
+    <style>
+	#game-container {
+		width: 80%;
+		margin: 0 auto;
+		text-align: center;
+	}
+
+	#current-letter {
+		margin: 20px 0;
+		font-size: 24px;
+		font-weight: bold;
+	}
+
+	#known-letters, #unknown-letters {
+		margin-top: 20px;
+	}
+
+	button {
+		margin: 5px;
+		padding: 10px 20px;
+		font-size: 16px;
+	}
+	
+	</style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>拼音学习游戏</h1>
+        <div id="options">
+            <label><input type="checkbox" class="category" value="initial">声母</label>
+            <label><input type="checkbox" class="category" value="single">单韵母</label>
+            <label><input type="checkbox" class="category" value="compound">复韵母</label>
+            <label><input type="checkbox" class="category" value="nasal">鼻韵母</label>
+            <label><input type="checkbox" class="category" value="whole">整体认读韵母</label>
+        </div>
+        <div id="current-letter">当前字母将在这里显示</div>
+        <button id="know-btn" onclick="addToKnow()">认识</button>
+        <button id="unknown-btn" onclick="addToUnknown()">不认识</button>
+        <div id="known-letters">认识的字母：</div>
+        <div id="unknown-letters">不认识的字母：</div>
+        <button id="restart-btn" onclick="restartGame()">重新开始</button>
+    </div>
+    <script>
+		const categories = {
+    'initial': ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's', 'y', 'w'],
+    'single': ['a', 'o', 'e', 'i', 'u', 'ü'],
+    'compound': ['ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'üe', 'er'],
+    'nasal': ['an', 'en', 'in', 'un', 'ün'],
+    'whole': ['zi', 'ci', 'si', 'zhi', 'chi', 'shi', 'ri', 'yi', 'wu', 'yu', 'ye', 'yue', 'yuan', 'yin', 'yun', 'ying']
+};
+
+let currentLetters = [];
+let knownLetters = [];
+let unknownLetters = [];
+let currentIndex = 0;
+
+// 打乱数组顺序的函数
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function selectCategories() {
+	knownLetters = [];
+    unknownLetters = [];
+    document.getElementById('known-letters').textContent = '';
+    document.getElementById('unknown-letters').textContent = '';
+    document.getElementById('restart-btn').style.display = 'none';
+	
+    const checkboxes = document.querySelectorAll('.category');
+    currentLetters = [];
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            const category = checkbox.value;
+            currentLetters = currentLetters.concat(categories[category]);
+        }
+    });
+    currentLetters = [...new Set(currentLetters)]; // 去重
+    currentLetters = shuffle(currentLetters); // 打乱顺序
+    currentIndex = 0;
+    displayNextLetter();
+}
+
+document.querySelectorAll('.category').forEach(checkbox => {
+    checkbox.addEventListener('change', selectCategories);
+});
+
+function displayNextLetter() {
+    if (currentIndex < currentLetters.length) {
+        document.getElementById('current-letter').textContent = currentLetters[currentIndex];
+    } else {
+        document.getElementById('current-letter').textContent = '所有字母已呈现完毕！';
+        document.getElementById('restart-btn').style.display = 'inline-block';
+    }
+}
+
+function addToKnow() {
+    if (currentIndex < currentLetters.length) {
+        const currentLetter = currentLetters[currentIndex];
+        knownLetters.push(currentLetter);
+        document.getElementById('known-letters').textContent = knownLetters.join(', ');
+        currentIndex++;
+        displayNextLetter();
+    }
+}
+
+function addToUnknown() {
+    if (currentIndex < currentLetters.length) {
+        const currentLetter = currentLetters[currentIndex];
+        unknownLetters.push(currentLetter);
+        document.getElementById('unknown-letters').textContent = unknownLetters.join(', ');
+        currentIndex++;
+        displayNextLetter();
+    }
+}
+
+function restartGame() {
+    knownLetters = [];
+    unknownLetters = [];
+    document.getElementById('known-letters').textContent = '';
+    document.getElementById('unknown-letters').textContent = '';
+    document.getElementById('restart-btn').style.display = 'none';
+    //document.querySelectorAll('.category').forEach(checkbox => checkbox.checked = false);
+    //currentLetters = [];
+    
+	currentLetters = shuffle(currentLetters); // 打乱顺序
+	currentIndex = 0;
+	displayNextLetter();
+    //document.getElementById('current-letter').textContent = '当前字母将在这里显示';
+}
+
+document.getElementById('restart-btn').style.display = 'none'; // 初始时隐藏重新开始按钮
+	</script>
+</body>
+</html>
